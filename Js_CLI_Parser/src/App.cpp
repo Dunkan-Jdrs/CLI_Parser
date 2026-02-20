@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "App.h"
 
 #include <stdexcept>
@@ -20,7 +19,9 @@ void App::Run(int argc, const char** argv)
 		if (IsSubcommandRegistred(subcommandName))
 		{
 			Subcommand subcommand = m_subcommands[subcommandName];
-			Context context = ContextBuilder::BuildContext(subcommand, tokens);
+
+			ContextBuilder builder = ContextBuilder();
+			Context context = builder.BuildContext(subcommand, tokens);
 
 			subcommand.Exec(context);
 		}

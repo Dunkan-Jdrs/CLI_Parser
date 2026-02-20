@@ -5,7 +5,10 @@
 enum class TokenType : char
 {
 	Subcommand,
-	Option
+	ShortOption,
+	LongOption,
+	ConcatOption,
+	Undefined
 };
 
 class Token

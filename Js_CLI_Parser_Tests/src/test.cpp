@@ -1,8 +1,8 @@
-#include "pch.h"
-#include "../Js_CLI_Parser/SubCommand.h"
-#include "../Js_CLI_Parser/Context.h"
-#include "../Js_CLI_Parser/App.h"
-#include "../Js_CLI_Parser/Parser.h"
+#include <gtest/gtest.h>
+#include "Subcommand.h"
+#include "ContextBuilder.h"
+#include "App.h"
+#include "Parser.h"
 
 #pragma region PARSER
 TEST(Parser, Parse_With_Subcommand_Only) {
@@ -96,24 +96,52 @@ TEST(App, App_Run_Subcommand_With_Option)
 #pragma endregion
 
 #pragma region TOKEN
-TEST(Token, Token_Type_Option)
+TEST(Token, Token_Type_ShortOption)
 {
 	/*Init*/
 	const std::string optionName = "-m";
-	Token tokenOption = Token("-m", {});
+	Token tokenOption = Token(optionName, {});
 	TokenType type;
 
 	/*Execute*/
 	type = tokenOption.GetType();
 
 	/*Verify*/
-	EXPECT_EQ(type, TokenType::Option);
+	EXPECT_EQ(type, TokenType::ShortOption);
+}
+
+TEST(Token, Token_Type_ConcatOption)
+{
+	/*Init*/
+	const std::string optionName = "-abc";
+	Token tokenOption = Token(optionName, {});
+	TokenType type;
+
+	/*Execute*/
+	type = tokenOption.GetType();
+
+	/*Verify*/
+	EXPECT_EQ(type, TokenType::ConcatOption);
+}
+
+TEST(Token, Token_Type_LongOption)
+{
+	/*Init*/
+	const std::string optionName = "--message";
+	Token tokenOption = Token(optionName, {});
+	TokenType type;
+
+	/*Execute*/
+	type = tokenOption.GetType();
+
+	/*Verify*/
+	EXPECT_EQ(type, TokenType::LongOption);
 }
 
 TEST(Token, Token_Type_Subcommand)
 {
 	/*Init*/
-	Token tokenOption = Token("m", {});
+	Token tokenOption = Token("subcommand", {});
 	TokenType type;
 
 	/*Execute*/
@@ -163,5 +191,48 @@ TEST(Token, Token_Arguments_Stored)
 	/*Verify*/
 	EXPECT_TRUE(tokenOption.GetArguments().size() == 2);
 	EXPECT_TRUE(tokenOption.GetArguments()[0] == "Hello");
+}
+#pragma endregion
+
+#pragma region Context
+TEST(Context, EmptyContext) 
+{
+	/*Init*/
+	Subcommand subcommand = Subcommand("subcommand", [](Context _ctx) {
+		std::string x = _ctx.Get("x");
+		});
+
+	ContextBuilder builder = ContextBuilder();
+	Context ctx = builder.BuildContext(subcommand, {});
+
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_THROW(subcommand.Exec(ctx), std::runtime_error);
+}
+
+TEST(Context, ContextWithConcatToken)
+{
+	/*Init*/
+	std::string concatFlag = "-abc";
+	Token concatToken = Token(concatFlag, {});
+
+	bool checkFlag = false;
+	Subcommand subcommand = Subcommand("subcommand", [&checkFlag](Context _ctx) {
+		checkFlag = _ctx.Has("a") && _ctx.Has("b") && _ctx.Has("c");
+		});
+
+	subcommand.AddOption(Option("a", "a", 0));
+	subcommand.AddOption(Option("b", "b", 0));
+	subcommand.AddOption(Option("c", "c", 0));
+
+	ContextBuilder builder = ContextBuilder();
+	Context ctx = builder.BuildContext(subcommand, { concatToken });
+
+	/*Execute*/
+	subcommand.Exec(ctx);
+
+	/*Verify*/
+	EXPECT_TRUE(checkFlag);
 }
 #pragma endregion

@@ -8,7 +8,7 @@ public:
 
 	const std::string& GetShortName() const;
 	const std::string& GetLongName() const;
-	int GetArity() const;
+	size_t GetArity() const;
 
 private:
 	std::string m_shortName;

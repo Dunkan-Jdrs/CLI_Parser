@@ -1,13 +1,8 @@
-#include "pch.h"
 #include "Token.h"
 #include <stdexcept>
 
 Token::Token(const std::string& name, const std::vector<std::string>& arguments)
 {
-	//TODO: Handle argument like -abc (-a, -b, -c)
-	if (name[0] == '-') m_type = TokenType::Option;
-	else m_type = TokenType::Subcommand;
-
 	size_t firstChar = name.find_first_not_of('-');
 	if (firstChar > 2)
 	{
@@ -16,6 +11,25 @@ Token::Token(const std::string& name, const std::vector<std::string>& arguments)
 	if (firstChar == name.npos)
 	{
 		throw std::runtime_error("A '-' need to precede a command");
+	}
+
+	switch (firstChar)
+	{
+	case 0:
+		m_type = TokenType::Subcommand;
+		break;
+	case 1:
+		if (name.size() == 2) m_type = TokenType::ShortOption;
+		else m_type = TokenType::ConcatOption;
+		break;
+	case 2:
+		m_type = TokenType::LongOption;
+		break;
+
+	default:
+		// Will never reach this because we thrown if firstChar > 2;
+		m_type = TokenType::Undefined;
+		return;
 	}
 	
 	m_name = name.substr(firstChar);

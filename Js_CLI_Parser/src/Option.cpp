@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "Option.h"
 
 Option::Option(const std::string& shortName, const std::string& longName, const int arity)
@@ -18,7 +17,7 @@ const std::string& Option::GetLongName() const
 	return m_longName;
 }
 
-int Option::GetArity() const
+size_t Option::GetArity() const
 {
 	return m_arity;
 }

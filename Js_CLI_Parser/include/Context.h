@@ -12,6 +12,7 @@ class Context
 public:
 	const std::string& Get(const std::string& valueName) const;
 	const std::vector<std::string>& GetAll(const std::string& valueName) const;
+	bool Has(const std::string& valueName) const;
 	
 private:
 	friend class ContextBuilder;
