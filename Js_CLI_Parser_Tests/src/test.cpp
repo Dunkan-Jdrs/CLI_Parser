@@ -79,7 +79,7 @@ TEST(App, App_Run_Subcommand_With_Option)
 	int currentValue = 0;
 
 	Subcommand foo = Subcommand(subcommandName, [&currentValue, &countOptionLongName](const Context& ctx) {
-		int count = std::stoi(ctx.Get(countOptionLongName));
+		int count = std::stoi(ctx.GetRaw(countOptionLongName));
 		currentValue = count;
 		});
 
@@ -199,7 +199,7 @@ TEST(Context, Empty_Context)
 {
 	/*Init*/
 	Subcommand subcommand = Subcommand("subcommand", [](const Context& _ctx) {
-		std::string x = _ctx.Get("x");
+		std::string x = _ctx.GetRaw("x");
 		});
 
 	ContextBuilder builder = ContextBuilder();
@@ -245,7 +245,7 @@ TEST(Context, Context_With_Concat_Token_With_Last_Option_Argument)
 
 	bool checkFlag = false;
 	Subcommand subcommand = Subcommand("subcommand", [&checkFlag, &arg](const Context& _ctx) {
-		checkFlag = _ctx.Has("a") && _ctx.Has("b") && _ctx.Has("c") && _ctx.Get("c") == arg;
+		checkFlag = _ctx.Has("a") && _ctx.Has("b") && _ctx.Has("c") && _ctx.GetRaw("c") == arg;
 		});
 
 	subcommand.AddOption(Option("a", "a", 0));
@@ -291,7 +291,7 @@ TEST(Context, Context_Get_Empty_Arg)
 
 	bool checkFlag = false;
 	Subcommand subcommand = Subcommand("subcommand", [](const Context& _ctx) {
-		std::string getA = _ctx.Get("a");
+		std::string getA = _ctx.GetRaw("a");
 		});
 
 	subcommand.AddOption(Option("a", "a", 0));
@@ -325,5 +325,29 @@ TEST(Context, Context_Get_All_Empty_Arg)
 
 	/*Verify*/
 	EXPECT_THROW(subcommand.Exec(ctx), std::runtime_error);
+}
+
+TEST(Context, Context_Get_Typed_Arg)
+{
+	/*Init*/
+	std::string flag = "--number";
+	Token token = Token(flag, {"10"});
+
+	bool checkFlag = false;
+	int number = 0;
+	Subcommand subcommand = Subcommand("subcommand", [&number](const Context& _ctx) {
+		number = _ctx.Get<int>("number");
+		});
+
+	subcommand.AddOption(Option("n", "number", 1));
+
+	ContextBuilder builder = ContextBuilder();
+	Context ctx = builder.BuildContext(subcommand, { token });
+
+	/*Execute*/
+	subcommand.Exec(ctx);
+
+	/*Verify*/
+	EXPECT_EQ(number, 10);
 }
 #pragma endregion

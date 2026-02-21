@@ -1,10 +1,11 @@
 #include "Context.h"
 #include <iostream>
+
 Context::Context(ValuesMap&& values) : m_values(std::move(values))
 {
 }
 
-const std::string& Context::Get(const std::string& valueName) const
+const std::string& Context::GetRaw(const std::string& valueName) const
 {
 	if (!Has(valueName))
 	{
