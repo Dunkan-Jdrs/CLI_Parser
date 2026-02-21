@@ -25,7 +25,6 @@ Token::Token(const std::string& name, const std::vector<std::string>& arguments)
 	case 2:
 		m_type = TokenType::LongOption;
 		break;
-
 	default:
 		// Will never reach this because we thrown if firstChar > 2;
 		m_type = TokenType::Undefined;

@@ -13,7 +13,7 @@ void App::Run(int argc, const char** argv)
 	Parser parser = Parser();
 	std::vector<Token> tokens = parser.Parse(argc, argv);
 
-	if (tokens[0].GetType() == TokenType::Subcommand)
+	if (tokens.size() > 0 && tokens[0].GetType() == TokenType::Subcommand)
 	{
 		std::string subcommandName = tokens[0].GetName();
 		if (IsSubcommandRegistred(subcommandName))

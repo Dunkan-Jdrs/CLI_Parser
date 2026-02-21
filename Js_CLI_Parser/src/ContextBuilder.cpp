@@ -73,7 +73,7 @@ void ContextBuilder::ConvertConcatOption(const Subcommand& subcommand, const Tok
 
 		if (option.GetArity() > 0)
 		{
-			std::string errorMessage = tokenName + " require parameter. If you want to use it in concatened option, please use it as the end";
+			std::string errorMessage = tokenName[i] + " require parameter. If you want to use it in concatened option, please use it as the end";
 			throw std::runtime_error(errorMessage);
 		}
 

@@ -185,7 +185,7 @@ TEST(Token, Token_Invalid_Name)
 TEST(Token, Token_Arguments_Stored)
 {
 	/*Init*/
-	Token tokenOption = Token("-m", {"Hello", "Bonjour"});
+	Token tokenOption = Token("-m", { "Hello", "Bonjour" });
 	/*Execute*/
 
 	/*Verify*/
@@ -195,10 +195,10 @@ TEST(Token, Token_Arguments_Stored)
 #pragma endregion
 
 #pragma region Context
-TEST(Context, EmptyContext) 
+TEST(Context, Empty_Context)
 {
 	/*Init*/
-	Subcommand subcommand = Subcommand("subcommand", [](Context _ctx) {
+	Subcommand subcommand = Subcommand("subcommand", [](const Context& _ctx) {
 		std::string x = _ctx.Get("x");
 		});
 
@@ -211,14 +211,14 @@ TEST(Context, EmptyContext)
 	EXPECT_THROW(subcommand.Exec(ctx), std::runtime_error);
 }
 
-TEST(Context, ContextWithConcatToken)
+TEST(Context, Context_With_Concat_Token)
 {
 	/*Init*/
 	std::string concatFlag = "-abc";
 	Token concatToken = Token(concatFlag, {});
 
 	bool checkFlag = false;
-	Subcommand subcommand = Subcommand("subcommand", [&checkFlag](Context _ctx) {
+	Subcommand subcommand = Subcommand("subcommand", [&checkFlag](const Context& _ctx) {
 		checkFlag = _ctx.Has("a") && _ctx.Has("b") && _ctx.Has("c");
 		});
 
@@ -234,5 +234,96 @@ TEST(Context, ContextWithConcatToken)
 
 	/*Verify*/
 	EXPECT_TRUE(checkFlag);
+}
+
+TEST(Context, Context_With_Concat_Token_With_Last_Option_Argument)
+{
+	/*Init*/
+	const std::string arg = "foo";
+	const std::string concatFlag = "-abc";
+	Token concatToken = Token(concatFlag, { arg });
+
+	bool checkFlag = false;
+	Subcommand subcommand = Subcommand("subcommand", [&checkFlag, &arg](const Context& _ctx) {
+		checkFlag = _ctx.Has("a") && _ctx.Has("b") && _ctx.Has("c") && _ctx.Get("c") == arg;
+		});
+
+	subcommand.AddOption(Option("a", "a", 0));
+	subcommand.AddOption(Option("b", "b", 0));
+	subcommand.AddOption(Option("c", "c", 1));
+
+	ContextBuilder builder = ContextBuilder();
+	Context ctx = builder.BuildContext(subcommand, { concatToken });
+
+	/*Execute*/
+	subcommand.Exec(ctx);
+
+	/*Verify*/
+	EXPECT_TRUE(checkFlag);
+}
+
+TEST(Context, Context_With_Concat_Token_With_Middle_Option_Argument)
+{
+	/*Init*/
+	const std::string arg = "foo";
+	const std::string concatFlag = "-abc";
+	Token concatToken = Token(concatFlag, { arg });
+
+	bool checkFlag = false;
+	Subcommand subcommand = Subcommand("subcommand", nullptr);
+	subcommand.AddOption(Option("a", "a", 0));
+	subcommand.AddOption(Option("b", "b", 1));
+	subcommand.AddOption(Option("c", "c", 0));
+
+	ContextBuilder builder = ContextBuilder();
+
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_THROW(builder.BuildContext(subcommand, { concatToken }), std::runtime_error);
+}
+
+TEST(Context, Context_Get_Empty_Arg)
+{
+	/*Init*/
+	std::string flag = "-a";
+	Token token = Token(flag, {});
+
+	bool checkFlag = false;
+	Subcommand subcommand = Subcommand("subcommand", [](const Context& _ctx) {
+		std::string getA = _ctx.Get("a");
+		});
+
+	subcommand.AddOption(Option("a", "a", 0));
+
+	ContextBuilder builder = ContextBuilder();
+	Context ctx = builder.BuildContext(subcommand, { token });
+
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_THROW(subcommand.Exec(ctx), std::runtime_error);
+}
+
+TEST(Context, Context_Get_All_Empty_Arg)
+{
+	/*Init*/
+	std::string flag = "-a";
+	Token token = Token(flag, {});
+
+	bool checkFlag = false;
+	Subcommand subcommand = Subcommand("subcommand", [](const Context& _ctx) {
+		std::vector<std::string> getAllA = _ctx.GetAll("a");
+		});
+
+	subcommand.AddOption(Option("a", "a", 0));
+
+	ContextBuilder builder = ContextBuilder();
+	Context ctx = builder.BuildContext(subcommand, { token });
+
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_THROW(subcommand.Exec(ctx), std::runtime_error);
 }
 #pragma endregion
