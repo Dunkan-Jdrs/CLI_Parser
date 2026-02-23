@@ -21,3 +21,6 @@ target_link_libraries(Js_CLI_Parser_Tests PRIVATE
   Js_CLI_Parser
   GTest::gtest_main
 )
+
+include(GoogleTest)
+gtest_discover_tests(Js_CLI_Parser_Tests)

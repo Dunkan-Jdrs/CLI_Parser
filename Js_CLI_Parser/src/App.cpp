@@ -13,23 +13,25 @@ void App::Run(int argc, const char** argv)
 	Parser parser = Parser();
 	std::vector<Token> tokens = parser.Parse(argc, argv);
 
-	if (tokens.size() > 0 && tokens[0].GetType() == TokenType::Subcommand)
+	if (tokens.empty())
 	{
-		std::string subcommandName = tokens[0].GetName();
-		if (IsSubcommandRegistred(subcommandName))
-		{
-			Subcommand subcommand = m_subcommands[subcommandName];
-
-			ContextBuilder builder = ContextBuilder();
-			Context context = builder.BuildContext(subcommand, tokens);
-
-			subcommand.Exec(context);
-		}
+		throw std::runtime_error("No arguments provided. Run help for usage");
 	}
-	else
+
+	if (tokens[0].GetType() != TokenType::Subcommand)
 	{
-		// TODO: General options
-		throw std::runtime_error("You need a command to run anything");
+		throw std::runtime_error("Expected a subcommand as first argument.");
+	}
+
+	std::string subcommandName = tokens[0].GetName();
+	if (IsSubcommandRegistred(subcommandName))
+	{
+		Subcommand subcommand = m_subcommands[subcommandName];
+
+		ContextBuilder builder = ContextBuilder();
+		Context context = builder.BuildContext(subcommand, tokens);
+
+		subcommand.Exec(context);
 	}
 }
 

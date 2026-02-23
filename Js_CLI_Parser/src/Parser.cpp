@@ -25,9 +25,8 @@ std::vector<Token> Parser::Parse(int argc, const char** argv) const
 		tokens.emplace_back(Token(subcommandName, subcommandArguments));
 	}
 
-	for (; currentIndex < argc; ++currentIndex)
+	while (currentIndex < argc)
 	{
-		// Unexpected token
 		if (argv[currentIndex][0] != '-')
 		{
 			std::string errorMessage = "Unexpected token found " + std::string(argv[currentIndex]);
@@ -39,8 +38,7 @@ std::vector<Token> Parser::Parse(int argc, const char** argv) const
 
 		while (currentIndex < argc && argv[currentIndex][0] != '-')
 		{
-			optionArguments.push_back(argv[currentIndex]);
-			currentIndex++;
+			optionArguments.push_back(argv[currentIndex++]);
 		}
 
 		tokens.emplace_back(Token(optionName, optionArguments));
