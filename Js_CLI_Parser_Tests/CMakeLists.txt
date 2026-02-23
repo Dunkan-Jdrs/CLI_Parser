@@ -14,8 +14,9 @@ FetchContent_MakeAvailable(googletest)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 
 add_executable(Js_CLI_Parser_Tests
-  ${SOURCES}
-)
+  ${SOURCES})
+
+target_include_directories(Js_CLI_Parser_Tests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(Js_CLI_Parser_Tests PRIVATE
   Js_CLI_Parser

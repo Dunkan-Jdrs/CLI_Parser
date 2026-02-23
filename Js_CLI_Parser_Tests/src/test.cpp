@@ -1,11 +1,119 @@
-#include <gtest/gtest.h>
-#include "Subcommand.h"
-#include "ContextBuilder.h"
-#include "App.h"
-#include "Parser.h"
+#pragma once
+#include "Common.h"
+
+#pragma region TOKEN
+TEST(Token, IsSubcommand)
+{
+	/*Init*/
+	Token tokenOption = Token("subcommand", {});
+	TokenType type;
+
+	/*Execute*/
+	type = tokenOption.GetType();
+
+	/*Verify*/
+	EXPECT_EQ(type, TokenType::Subcommand);
+}
+
+TEST(Token, IsShortOption)
+{
+	/*Init*/
+	const std::string optionName = "-m";
+	Token tokenOption = Token(optionName, {});
+	TokenType type;
+
+	/*Execute*/
+	type = tokenOption.GetType();
+
+	/*Verify*/
+	EXPECT_EQ(type, TokenType::ShortOption);
+}
+
+TEST(Token, IsConcatOptionOption)
+{
+	/*Init*/
+	const std::string optionName = "-abc";
+	Token tokenOption = Token(optionName, {});
+	TokenType type;
+
+	/*Execute*/
+	type = tokenOption.GetType();
+
+	/*Verify*/
+	EXPECT_EQ(type, TokenType::ConcatOption);
+}
+
+TEST(Token, IsLongOptionOption)
+{
+	/*Init*/
+	const std::string optionName = "--message";
+	Token tokenOption = Token(optionName, {});
+	TokenType type;
+
+	/*Execute*/
+	type = tokenOption.GetType();
+
+	/*Verify*/
+	EXPECT_EQ(type, TokenType::LongOption);
+}
+
+TEST(Token, ShortOptionNameTrimmed)
+{
+	/*Init*/
+	Token tokenOption = Token("-m", {});
+
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_EQ(tokenOption.GetName(), "m");
+}
+
+TEST(Token, LongOptionNameTrimmed)
+{
+	/*Init*/
+	Token tokenOption = Token("-message", {});
+
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_EQ(tokenOption.GetName(), "message");
+}
+
+TEST(Token, ThrowsIfOnlyDash)
+{
+	/*Init*/
+
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_THROW(Token("-", {}), std::runtime_error);
+}
+
+TEST(Token, ThrowsIfTooManyDashes)
+{
+	/*Init*/
+
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_THROW(Token("---Test", {}), std::runtime_error);
+}
+
+TEST(Token, StoresArguments)
+{
+	/*Init*/
+	Token tokenOption = Token("-m", { "Hello", "Bonjour" });
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_EQ(tokenOption.GetArguments().size(), 2);
+	EXPECT_EQ(tokenOption.GetArguments()[0], "Hello");
+	EXPECT_EQ(tokenOption.GetArguments()[1], "Bonjour");
+}
+#pragma endregion
 
 #pragma region PARSER
-TEST(Parser, Parse_With_Subcommand_Only) {
+TEST(Parser, SubcommandOnly) {
 
 	/*Init*/
 	Parser parser = Parser();
@@ -22,7 +130,7 @@ TEST(Parser, Parse_With_Subcommand_Only) {
 	EXPECT_EQ(tokens[0].GetType(), TokenType::Subcommand);
 }
 
-TEST(Parser, Parse_With_Flag_And_Option) {
+TEST(Parser,FlagAndOption) {
 
 	/*Init*/
 	Parser parser = Parser();
@@ -56,7 +164,7 @@ TEST(Parser, Parse_With_Flag_And_Option) {
 #pragma endregion
 
 #pragma region APP
-TEST(App, App_Run_Nothing)
+TEST(App, RunNothing)
 {
 	/*Init*/
 	App app = App();
@@ -69,7 +177,7 @@ TEST(App, App_Run_Nothing)
 	EXPECT_THROW(app.Run(argc, argv), std::runtime_error);
 }
 
-TEST(App, App_Run_Without_Subcommand)
+TEST(App, RunWithoutSubcommand)
 {
 	/*Init*/
 	App app = App();
@@ -82,7 +190,7 @@ TEST(App, App_Run_Without_Subcommand)
 	EXPECT_THROW(app.Run(argc, argv), std::runtime_error);
 }
 
-TEST(App, Add_Subcommand_Twice)
+TEST(App, AddSubcommandTwice)
 {
 	/*Init*/
 	App app = App();
@@ -97,7 +205,7 @@ TEST(App, Add_Subcommand_Twice)
 	EXPECT_THROW(app.AddSubcommand(fooBis), std::runtime_error);
 }
 
-TEST(App, App_Run_Subcommand_Only)
+TEST(App, RunSubcommandOnly)
 {
 	/*Init*/
 	App app = App();
@@ -121,7 +229,7 @@ TEST(App, App_Run_Subcommand_Only)
 	EXPECT_EQ(requiredValue, currentValue);
 }
 
-TEST(App, App_Run_Subcommand_With_Option)
+TEST(App, RunSubcommandWithOption)
 {
 	/*Init*/
 	App app = App();
@@ -153,107 +261,10 @@ TEST(App, App_Run_Subcommand_With_Option)
 }
 #pragma endregion
 
-#pragma region TOKEN
-TEST(Token, Token_Type_ShortOption)
-{
-	/*Init*/
-	const std::string optionName = "-m";
-	Token tokenOption = Token(optionName, {});
-	TokenType type;
 
-	/*Execute*/
-	type = tokenOption.GetType();
-
-	/*Verify*/
-	EXPECT_EQ(type, TokenType::ShortOption);
-}
-
-TEST(Token, Token_Type_ConcatOption)
-{
-	/*Init*/
-	const std::string optionName = "-abc";
-	Token tokenOption = Token(optionName, {});
-	TokenType type;
-
-	/*Execute*/
-	type = tokenOption.GetType();
-
-	/*Verify*/
-	EXPECT_EQ(type, TokenType::ConcatOption);
-}
-
-TEST(Token, Token_Type_LongOption)
-{
-	/*Init*/
-	const std::string optionName = "--message";
-	Token tokenOption = Token(optionName, {});
-	TokenType type;
-
-	/*Execute*/
-	type = tokenOption.GetType();
-
-	/*Verify*/
-	EXPECT_EQ(type, TokenType::LongOption);
-}
-
-TEST(Token, Token_Type_Subcommand)
-{
-	/*Init*/
-	Token tokenOption = Token("subcommand", {});
-	TokenType type;
-
-	/*Execute*/
-	type = tokenOption.GetType();
-
-	/*Verify*/
-	EXPECT_EQ(type, TokenType::Subcommand);
-}
-
-TEST(Token, Token_Trim_Option_Name)
-{
-	/*Init*/
-	Token tokenOption = Token("-m", {});
-
-	/*Execute*/
-
-	/*Verify*/
-	EXPECT_TRUE(tokenOption.GetName()[0] != '-');
-}
-
-TEST(Token, Token_No_Name)
-{
-	/*Init*/
-
-	/*Execute*/
-
-	/*Verify*/
-	EXPECT_THROW(Token("---", {}), std::runtime_error);
-}
-
-TEST(Token, Token_Invalid_Name)
-{
-	/*Init*/
-
-	/*Execute*/
-
-	/*Verify*/
-	EXPECT_THROW(Token("---Test", {}), std::runtime_error);
-}
-
-TEST(Token, Token_Arguments_Stored)
-{
-	/*Init*/
-	Token tokenOption = Token("-m", { "Hello", "Bonjour" });
-	/*Execute*/
-
-	/*Verify*/
-	EXPECT_TRUE(tokenOption.GetArguments().size() == 2);
-	EXPECT_TRUE(tokenOption.GetArguments()[0] == "Hello");
-}
-#pragma endregion
 
 #pragma region Context
-TEST(Context, Empty_Context)
+TEST(Context, EmptyContext)
 {
 	/*Init*/
 	Subcommand subcommand = Subcommand("subcommand", [](const Context& _ctx) {
@@ -269,7 +280,7 @@ TEST(Context, Empty_Context)
 	EXPECT_THROW(subcommand.Exec(ctx), std::runtime_error);
 }
 
-TEST(Context, Context_With_Concat_Token)
+TEST(Context, ConcatToken)
 {
 	/*Init*/
 	std::string concatFlag = "-abc";
@@ -294,7 +305,7 @@ TEST(Context, Context_With_Concat_Token)
 	EXPECT_TRUE(checkFlag);
 }
 
-TEST(Context, Context_With_Concat_Token_With_Last_Option_Argument)
+TEST(Context, ConcatTokenWithLastOptionArgument)
 {
 	/*Init*/
 	const std::string arg = "foo";
@@ -320,7 +331,7 @@ TEST(Context, Context_With_Concat_Token_With_Last_Option_Argument)
 	EXPECT_TRUE(checkFlag);
 }
 
-TEST(Context, Context_With_Concat_Token_With_Middle_Option_Argument)
+TEST(Context, ThrowsIfConcatTokenHasMiddleOptionArgument)
 {
 	/*Init*/
 	const std::string arg = "foo";
@@ -341,7 +352,7 @@ TEST(Context, Context_With_Concat_Token_With_Middle_Option_Argument)
 	EXPECT_THROW(builder.BuildContext(subcommand, { concatToken }), std::runtime_error);
 }
 
-TEST(Context, Context_Get_Empty_Arg)
+TEST(Context, ThrowsIfGetEmptyArg)
 {
 	/*Init*/
 	std::string flag = "-a";
@@ -363,7 +374,7 @@ TEST(Context, Context_Get_Empty_Arg)
 	EXPECT_THROW(subcommand.Exec(ctx), std::runtime_error);
 }
 
-TEST(Context, Context_Get_All_Empty_Arg)
+TEST(Context, ThrowsIfGetAllEmptyArg)
 {
 	/*Init*/
 	std::string flag = "-a";
@@ -385,7 +396,7 @@ TEST(Context, Context_Get_All_Empty_Arg)
 	EXPECT_THROW(subcommand.Exec(ctx), std::runtime_error);
 }
 
-TEST(Context, Context_Get_Typed_Arg)
+TEST(Context, GetTypedArg)
 {
 	/*Init*/
 	std::string flag = "--number";
