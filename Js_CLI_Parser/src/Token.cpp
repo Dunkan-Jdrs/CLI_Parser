@@ -3,6 +3,11 @@
 
 Token::Token(const std::string& name, const std::vector<std::string>& arguments)
 {
+	if (name.empty())
+	{
+		throw std::runtime_error("Empty token found. Impossible case");
+	}
+
 	size_t firstChar = name.find_first_not_of('-');
 	if (firstChar > 2)
 	{

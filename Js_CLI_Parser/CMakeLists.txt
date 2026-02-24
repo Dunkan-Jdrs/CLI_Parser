@@ -1,4 +1,3 @@
-set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE Sources src/*.cpp)
 
 add_library(Js_CLI_Parser STATIC ${Sources})

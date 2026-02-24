@@ -99,7 +99,7 @@ void ContextBuilder::ConvertConcatOption(const Subcommand& subcommand, const Tok
 
 	std::vector<std::string>& values = map[option.GetLongName()];
 
-	for (int i = 0; i < argCount; ++i)
+	for (size_t i = 0; i < argCount; ++i)
 	{
 		values.push_back(token.GetArguments()[i]);
 	}

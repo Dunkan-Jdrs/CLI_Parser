@@ -1,7 +1,16 @@
-#pragma once
 #include "Common.h"
 
 #pragma region TOKEN
+
+TEST(Token, Empty)
+{
+	/*Init*/
+	const std::string optionName = "";
+
+	/*Verify*/
+	EXPECT_THROW(Token(optionName, {}), std::runtime_error);
+}
+
 TEST(Token, IsSubcommand)
 {
 	/*Init*/
@@ -71,7 +80,7 @@ TEST(Token, ShortOptionNameTrimmed)
 TEST(Token, LongOptionNameTrimmed)
 {
 	/*Init*/
-	Token tokenOption = Token("-message", {});
+	Token tokenOption = Token("--message", {});
 
 	/*Execute*/
 
@@ -113,6 +122,22 @@ TEST(Token, StoresArguments)
 #pragma endregion
 
 #pragma region PARSER
+
+TEST(Parser, Nothing) {
+
+	/*Init*/
+	Parser parser = Parser();
+
+	const int argc = 1;
+	const char* argv[argc] = { ".exe" };
+
+	/*Execute*/
+	std::vector<Token> tokens = parser.Parse(argc, argv);
+
+	/*Verify*/
+	EXPECT_TRUE(tokens.empty());
+}
+
 TEST(Parser, SubcommandOnly) {
 
 	/*Init*/
@@ -130,7 +155,7 @@ TEST(Parser, SubcommandOnly) {
 	EXPECT_EQ(tokens[0].GetType(), TokenType::Subcommand);
 }
 
-TEST(Parser,FlagAndOption) {
+TEST(Parser, FlagAndOption) {
 
 	/*Init*/
 	Parser parser = Parser();
@@ -143,7 +168,7 @@ TEST(Parser,FlagAndOption) {
 	const Option option = Option("o", "option", 1);
 
 	const int argc = 5;
-	const char* argv[argc] = { ".exe", subcommandName.c_str(), flagName.c_str(), optionName.c_str(), "foo"};
+	const char* argv[argc] = { ".exe", subcommandName.c_str(), flagName.c_str(), optionName.c_str(), "foo" };
 
 	/*Execute*/
 	std::vector<Token> tokens = parser.Parse(argc, argv);
@@ -182,11 +207,52 @@ TEST(App, RunWithoutSubcommand)
 	/*Init*/
 	App app = App();
 	const int argc = 2;
-	const char* argv[argc] = { ".exe", "-v"};
+	const char* argv[argc] = { ".exe", "-v" };
 
 	/*Execute*/
 
 	/*Verify*/
+
+	// We don't verify with throw here because Run handle every throw of the application
+	EXPECT_EQ(app.Run(argc, argv), 1);
+}
+
+TEST(App, RunUnknownSubcommand)
+{
+	/*Init*/
+	App app = App();
+	const int argc = 2;
+	const char* argv[argc] = { ".exe", "unknown" };
+
+	/*Execute*/
+
+	/*Verify*/
+
+	// We don't verify with throw here because Run handle every throw of the application
+	EXPECT_EQ(app.Run(argc, argv), 1);
+}
+
+TEST(App, RunSubcommandWithUnknownOption)
+{
+	/*Init*/
+	App app = App();
+
+	const std::string subcommandName = "Foo";
+	const int argc = 3;
+	const char* argv[argc] = { ".exe", subcommandName.c_str(), "-h"};
+
+	const int requiredValue = 10;
+	int currentValue = 0;
+
+	Subcommand foo = Subcommand(subcommandName, [requiredValue, &currentValue](const Context& ctx) {
+		currentValue = requiredValue;
+		});
+
+	/*Execute*/
+	app.AddSubcommand(foo);
+	
+	/*Verify*/
+	// We don't verify with throw here because Run handle every throw of the application
 	EXPECT_EQ(app.Run(argc, argv), 1);
 }
 
@@ -261,8 +327,6 @@ TEST(App, RunSubcommandWithOption)
 }
 #pragma endregion
 
-
-
 #pragma region Context
 TEST(Context, EmptyContext)
 {
@@ -278,6 +342,38 @@ TEST(Context, EmptyContext)
 
 	/*Verify*/
 	EXPECT_THROW(subcommand.Exec(ctx), std::runtime_error);
+}
+
+TEST(Context, ThrowsIfUnknownOption)
+{
+	/*Init*/
+	Subcommand subcommand = Subcommand("subcommand", nullptr);
+	ContextBuilder builder = ContextBuilder();
+
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_THROW(builder.BuildContext(subcommand, { Token("-h", {}) }), std::runtime_error);
+}
+
+TEST(Context, ThrowsIfMissmatchArity)
+{
+	/*Init*/
+	Subcommand subcommand = Subcommand("subcommand", nullptr);
+	ContextBuilder builder = ContextBuilder();
+
+	Option option = Option("o", "option", 2);
+	subcommand.AddOption(option);
+
+	Token tokenTooManyArgs = Token("-o", { "test", "test2", "test3" });
+	Token tokenTooLowArgs = Token("-o", { "test" });
+	Token tokenGreatArgs = Token("-o", { "test", "test2" });
+	/*Execute*/
+
+	/*Verify*/
+	EXPECT_THROW(builder.BuildContext(subcommand, { tokenTooManyArgs }), std::runtime_error);
+	EXPECT_THROW(builder.BuildContext(subcommand, { tokenTooLowArgs }), std::runtime_error);
+	EXPECT_NO_THROW(builder.BuildContext(subcommand, { tokenGreatArgs }));
 }
 
 TEST(Context, ConcatToken)
@@ -400,7 +496,7 @@ TEST(Context, GetTypedArg)
 {
 	/*Init*/
 	const std::string flag = "--number";
-	Token token = Token(flag, {"10"});
+	Token token = Token(flag, { "10" });
 
 	bool checkFlag = false;
 	int number = 0;
@@ -424,7 +520,7 @@ TEST(Context, GetAllTypedArg)
 {
 	/*Init*/
 	const std::string flag = "--numbers";
-	Token token = Token(flag, { "10", "15"});
+	Token token = Token(flag, { "10", "15" });
 
 	bool checkFlag = false;
 	int number = 0;

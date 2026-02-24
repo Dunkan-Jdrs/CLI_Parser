@@ -15,7 +15,7 @@ int App::Run(int argc, const char** argv)
 		Execute(argc, argv);
 		return 0;
 	}
-	catch (std::runtime_error e)
+	catch (const std::runtime_error& e)
 	{
 		std::cerr << e.what() << std::endl;
 		return 1;
@@ -50,7 +50,7 @@ void App::Execute(int argc, const char** argv)
 	else
 	{
 		std::string errorMessage = subcommandName + " does not exist in the app";
-		throw std::runtime_error("Expected a subcommand as first argument.");
+		throw std::runtime_error(errorMessage);
 	}
 }
 
