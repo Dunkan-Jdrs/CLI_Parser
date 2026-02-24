@@ -11,7 +11,6 @@ public:
 
 	void Run(int argc, const char** argv);
 	void AddSubcommand(const Subcommand& subcommand);
-	void GetHelp() const;
 
 private:
 	bool IsSubcommandRegistred(const std::string& name);

@@ -23,7 +23,7 @@ const std::string& Context::GetRaw(const std::string& valueName) const
 	return values[0];
 }
 
-const std::vector<std::string>& Context::GetAll(const std::string& valueName) const
+const std::vector<std::string>& Context::GetAllRaw(const std::string& valueName) const
 {
 	if (!Has(valueName))
 	{

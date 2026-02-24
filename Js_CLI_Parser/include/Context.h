@@ -12,17 +12,31 @@ class Context
 {
 public:
 	template<typename T>
-	const T& Get(const std::string& valueName) const
+	T Get(const std::string& valueName) const
 	{
-		T value;
+		T value{};
 		const std::string& rawValue = GetRaw(valueName);
 		std::from_chars(rawValue.data(), rawValue.data() + rawValue.size(), value);
 
 		return value;
 	};
 
+	template<typename T>
+	std::vector<T> GetAll(const std::string& valueName) const
+	{
+		const std::vector<std::string>& rawValues = GetAllRaw(valueName);
+		std::vector<T> values(rawValues.size());
+		for (int i = 0; i < rawValues.size(); ++i)
+		{
+			std::from_chars(rawValues[i].data(), rawValues[i].data() + rawValues[i].size(), values[i]);
+		}
+		
+
+		return values;
+	};
+
 	const std::string& GetRaw(const std::string& valueName) const;
-	const std::vector<std::string>& GetAll(const std::string& valueName) const;
+	const std::vector<std::string>& GetAllRaw(const std::string& valueName) const;
 	bool Has(const std::string& valueName) const;
 	
 private:

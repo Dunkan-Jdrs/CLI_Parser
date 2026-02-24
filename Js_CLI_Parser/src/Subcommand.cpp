@@ -22,13 +22,8 @@ const std::string& Subcommand::GetName() const
 
 const Option& Subcommand::GetOption(const std::string& optionName) const
 {
-	int index = m_optionsMap.at(optionName);
+	size_t index = m_optionsMap.at(optionName);
 	return m_options[index];
-}
-
-void Subcommand::Help() const
-{
-	std::cout << m_helpMessage << std::endl;
 }
 
 void Subcommand::AddOption(const Option& option)

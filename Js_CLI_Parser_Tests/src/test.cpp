@@ -382,7 +382,7 @@ TEST(Context, ThrowsIfGetAllEmptyArg)
 
 	bool checkFlag = false;
 	Subcommand subcommand = Subcommand("subcommand", [](const Context& _ctx) {
-		std::vector<std::string> getAllA = _ctx.GetAll("a");
+		std::vector<std::string> getAllA = _ctx.GetAllRaw("a");
 		});
 
 	subcommand.AddOption(Option("a", "a", 0));
@@ -399,7 +399,7 @@ TEST(Context, ThrowsIfGetAllEmptyArg)
 TEST(Context, GetTypedArg)
 {
 	/*Init*/
-	std::string flag = "--number";
+	const std::string flag = "--number";
 	Token token = Token(flag, {"10"});
 
 	bool checkFlag = false;
@@ -418,5 +418,30 @@ TEST(Context, GetTypedArg)
 
 	/*Verify*/
 	EXPECT_EQ(number, 10);
+}
+
+TEST(Context, GetAllTypedArg)
+{
+	/*Init*/
+	const std::string flag = "--numbers";
+	Token token = Token(flag, { "10", "15"});
+
+	bool checkFlag = false;
+	int number = 0;
+	Subcommand subcommand = Subcommand("subcommand", [&number](const Context& _ctx) {
+		std::vector<int> numbers = _ctx.GetAll<int>("numbers");
+		for (int i = 0; i < numbers.size(); ++i) number += numbers[i];
+		});
+
+	subcommand.AddOption(Option("n", "numbers", 2));
+
+	ContextBuilder builder = ContextBuilder();
+	Context ctx = builder.BuildContext(subcommand, { token });
+
+	/*Execute*/
+	subcommand.Exec(ctx);
+
+	/*Verify*/
+	EXPECT_EQ(number, 25);
 }
 #pragma endregion

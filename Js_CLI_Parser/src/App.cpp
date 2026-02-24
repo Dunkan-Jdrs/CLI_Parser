@@ -10,35 +10,41 @@
 
 void App::Run(int argc, const char** argv)
 {
-	Parser parser = Parser();
-	std::vector<Token> tokens = parser.Parse(argc, argv);
-
-	if (tokens.empty())
+	try
 	{
-		throw std::runtime_error("No arguments provided. Run help for usage");
-	}
+		Parser parser = Parser();
+		std::vector<Token> tokens = parser.Parse(argc, argv);
 
-	if (tokens[0].GetType() != TokenType::Subcommand)
+		if (tokens.empty())
+		{
+			throw std::runtime_error("No arguments provided. Run help for usage");
+		}
+
+		if (tokens[0].GetType() != TokenType::Subcommand)
+		{
+			throw std::runtime_error("Expected a subcommand as first argument.");
+		}
+
+		std::string subcommandName = tokens[0].GetName();
+		if (IsSubcommandRegistred(subcommandName))
+		{
+			Subcommand subcommand = m_subcommands[subcommandName];
+
+			ContextBuilder builder = ContextBuilder();
+			Context context = builder.BuildContext(subcommand, tokens);
+
+			subcommand.Exec(context);
+		}
+	}
+	catch (std::runtime_error e)
 	{
-		throw std::runtime_error("Expected a subcommand as first argument.");
+		std::cerr << e.what() << std::endl;
 	}
-
-	std::string subcommandName = tokens[0].GetName();
-	if (IsSubcommandRegistred(subcommandName))
-	{
-		Subcommand subcommand = m_subcommands[subcommandName];
-
-		ContextBuilder builder = ContextBuilder();
-		Context context = builder.BuildContext(subcommand, tokens);
-
-		subcommand.Exec(context);
-	}
+	
 }
 
 void App::AddSubcommand(const Subcommand& subcommand)
 {
-	// Case to handle, can't add a subcommand with the same name twice or more.
-	// Should throw a std::runtime_error
 	std::string name = subcommand.GetName();
 	if (IsSubcommandRegistred(name))
 	{
@@ -47,11 +53,6 @@ void App::AddSubcommand(const Subcommand& subcommand)
 	}
 
 	m_subcommands[name] = subcommand;
-}
-
-void App::GetHelp() const
-{
-	std::cout << "help" << std::endl;
 }
 
 bool App::IsSubcommandRegistred(const std::string& name)
