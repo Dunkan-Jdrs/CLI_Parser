@@ -8,39 +8,50 @@
 #include "Context.h"
 #include "ContextBuilder.h"
 
-void App::Run(int argc, const char** argv)
+int App::Run(int argc, const char** argv)
 {
 	try
 	{
-		Parser parser = Parser();
-		std::vector<Token> tokens = parser.Parse(argc, argv);
-
-		if (tokens.empty())
-		{
-			throw std::runtime_error("No arguments provided. Run help for usage");
-		}
-
-		if (tokens[0].GetType() != TokenType::Subcommand)
-		{
-			throw std::runtime_error("Expected a subcommand as first argument.");
-		}
-
-		std::string subcommandName = tokens[0].GetName();
-		if (IsSubcommandRegistred(subcommandName))
-		{
-			Subcommand subcommand = m_subcommands[subcommandName];
-
-			ContextBuilder builder = ContextBuilder();
-			Context context = builder.BuildContext(subcommand, tokens);
-
-			subcommand.Exec(context);
-		}
+		Execute(argc, argv);
+		return 0;
 	}
 	catch (std::runtime_error e)
 	{
 		std::cerr << e.what() << std::endl;
+		return 1;
 	}
-	
+}
+
+void App::Execute(int argc, const char** argv)
+{
+	Parser parser = Parser();
+	std::vector<Token> tokens = parser.Parse(argc, argv);
+
+	if (tokens.empty())
+	{
+		throw std::runtime_error("No arguments provided. Run help for usage");
+	}
+
+	if (tokens[0].GetType() != TokenType::Subcommand)
+	{
+		throw std::runtime_error("Expected a subcommand as first argument.");
+	}
+
+	std::string subcommandName = tokens[0].GetName();
+	if (IsSubcommandRegistred(subcommandName))
+	{
+		Subcommand subcommand = m_subcommands[subcommandName];
+
+		ContextBuilder builder = ContextBuilder();
+		Context context = builder.BuildContext(subcommand, tokens);
+
+		subcommand.Exec(context);
+	}
+	else
+	{
+		std::string errorMessage = subcommandName + " does not exist in the app";
+		throw std::runtime_error("Expected a subcommand as first argument.");
+	}
 }
 
 void App::AddSubcommand(const Subcommand& subcommand)

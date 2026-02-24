@@ -22,6 +22,12 @@ const std::string& Subcommand::GetName() const
 
 const Option& Subcommand::GetOption(const std::string& optionName) const
 {
+	if (!HasRegisteredOption(optionName))
+	{
+		std::string errorMessage = optionName + " does not exist for " + this->m_name + " subcommand";
+		throw std::runtime_error(errorMessage);
+	}
+
 	size_t index = m_optionsMap.at(optionName);
 	return m_options[index];
 }
@@ -40,4 +46,9 @@ void Subcommand::AddOption(const std::string& shortName, const std::string& long
 {
 	Option option = Option(shortName, longName, arity);
 	AddOption(option);
+}
+
+bool Subcommand::HasRegisteredOption(const std::string& optionName) const
+{
+	return m_optionsMap.find(optionName) != m_optionsMap.end();
 }

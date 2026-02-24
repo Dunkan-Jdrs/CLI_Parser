@@ -174,7 +174,7 @@ TEST(App, RunNothing)
 	/*Execute*/
 
 	/*Verify*/
-	EXPECT_THROW(app.Run(argc, argv), std::runtime_error);
+	EXPECT_EQ(app.Run(argc, argv), 1);
 }
 
 TEST(App, RunWithoutSubcommand)
@@ -187,7 +187,7 @@ TEST(App, RunWithoutSubcommand)
 	/*Execute*/
 
 	/*Verify*/
-	EXPECT_THROW(app.Run(argc, argv), std::runtime_error);
+	EXPECT_EQ(app.Run(argc, argv), 1);
 }
 
 TEST(App, AddSubcommandTwice)

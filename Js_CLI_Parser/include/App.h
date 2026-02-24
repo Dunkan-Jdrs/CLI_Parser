@@ -9,10 +9,11 @@ class App
 public:
 	App() = default;
 
-	void Run(int argc, const char** argv);
+	int Run(int argc, const char** argv);
 	void AddSubcommand(const Subcommand& subcommand);
 
 private:
+	void Execute(int argc, const char** argv);
 	bool IsSubcommandRegistred(const std::string& name);
 	std::unordered_map<std::string, Subcommand> m_subcommands;
 };

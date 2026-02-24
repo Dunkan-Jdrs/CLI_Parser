@@ -24,6 +24,8 @@ public:
 	const Option& GetOption(const std::string& optionName) const;
 
 private:
+	bool HasRegisteredOption(const std::string& optionName) const;
+
 	std::string m_name;
 	std::function<void(const Context&)> m_callback;
 
