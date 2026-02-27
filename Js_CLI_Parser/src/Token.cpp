@@ -3,7 +3,7 @@
 
 Token::Token(const std::string& name, const std::vector<std::string>& arguments)
 {
-	if (name.empty())
+	if (name.empty() || name.find_first_not_of(' ') == name.npos)
 	{
 		throw std::runtime_error("Empty token found. Impossible case");
 	}

@@ -2,15 +2,6 @@
 
 #pragma region TOKEN
 
-TEST(Token, Empty)
-{
-	/*Init*/
-	const std::string optionName = "";
-
-	/*Verify*/
-	EXPECT_THROW(Token(optionName, {}), std::runtime_error);
-}
-
 TEST(Token, IsSubcommand)
 {
 	/*Init*/
@@ -86,6 +77,24 @@ TEST(Token, LongOptionNameTrimmed)
 
 	/*Verify*/
 	EXPECT_EQ(tokenOption.GetName(), "message");
+}
+
+TEST(Token, ThrowsIfEmpty)
+{
+	/*Init*/
+	const std::string optionName = "";
+
+	/*Verify*/
+	EXPECT_THROW(Token(optionName, {}), std::runtime_error);
+}
+
+TEST(Token, ThrowsIfOnlyWhitespace)
+{
+	/*Init*/
+	const std::string optionName = "  ";
+
+	/*Verify*/
+	EXPECT_THROW(Token(optionName, {}), std::runtime_error);
 }
 
 TEST(Token, ThrowsIfOnlyDash)
