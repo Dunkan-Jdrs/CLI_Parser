@@ -42,12 +42,6 @@ void Subcommand::AddOption(const Option& option)
 	m_optionsMap[option.GetShortName()] = index;
 }
 
-void Subcommand::AddOption(const std::string& shortName, const std::string& longName, const int arity)
-{
-	Option option = Option(shortName, longName, arity);
-	AddOption(option);
-}
-
 bool Subcommand::HasRegisteredOption(const std::string& optionName) const
 {
 	return m_optionsMap.find(optionName) != m_optionsMap.end();

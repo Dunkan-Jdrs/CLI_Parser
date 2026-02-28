@@ -10,29 +10,8 @@ std::vector<Token> Parser::Parse(int argc, const char** argv) const
 
 	int currentIndex = 1;
 
-	// Check if first is subcommand
-	if (argv[currentIndex][0] != '-')
-	{
-		std::string subcommandName = argv[currentIndex++];
-		std::vector<std::string> subcommandArguments = std::vector<std::string>();
-
-		while (currentIndex < argc && argv[currentIndex][0] != '-')
-		{
-			subcommandArguments.push_back(argv[currentIndex]);
-			currentIndex++;
-		}
-
-		tokens.emplace_back(Token(subcommandName, subcommandArguments));
-	}
-
 	while (currentIndex < argc)
 	{
-		if (argv[currentIndex][0] != '-')
-		{
-			std::string errorMessage = "Unexpected token found " + std::string(argv[currentIndex]);
-			throw std::runtime_error(errorMessage);
-		}
-
 		std::string optionName = argv[currentIndex++];
 		std::vector<std::string> optionArguments = std::vector<std::string>();
 

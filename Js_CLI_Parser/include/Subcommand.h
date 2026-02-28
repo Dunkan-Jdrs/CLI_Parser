@@ -13,12 +13,10 @@ class Subcommand
 public:
 	Subcommand() = default;
 	Subcommand(const std::string& name, std::function<void(const Context&)> callback);
-	Subcommand(const std::string& name, std::function<void(const Context&)> callback, const std::string& helpMessage);
 
 	void Exec(const Context& context);
 
 	void AddOption(const Option& option);
-	void AddOption(const std::string& shortName, const std::string& longName, const int arity);
 
 	const std::string& GetName() const;
 	const Option& GetOption(const std::string& optionName) const;
