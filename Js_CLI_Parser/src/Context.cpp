@@ -1,5 +1,4 @@
 #include "Context.h"
-#include <iostream>
 
 Context::Context(ValuesMap&& values) : m_values(std::move(values))
 {

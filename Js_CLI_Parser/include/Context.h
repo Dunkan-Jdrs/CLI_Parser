@@ -1,10 +1,9 @@
 #pragma once
+#include <stdexcept>
 #include <vector>
 #include <unordered_map>
 #include <string>
 #include <charconv>
-
-class Subcommand;
 
 using ValuesMap = std::unordered_map<std::string, std::vector<std::string>>;
 
@@ -16,8 +15,12 @@ public:
 	{
 		T value{};
 		const std::string& rawValue = GetRaw(valueName);
-		std::from_chars(rawValue.data(), rawValue.data() + rawValue.size(), value);
-
+		auto [ptr, ec] = std::from_chars(rawValue.data(), rawValue.data() + rawValue.size(), value);
+		if(ec != std::errc())
+		{
+			std::string errorMessage = rawValue + " is not a value typed as " + typeid(T).name();
+			throw std::runtime_error(errorMessage);
+		}
 		return value;
 	};
 
@@ -28,9 +31,13 @@ public:
 		std::vector<T> values(rawValues.size());
 		for (int i = 0; i < rawValues.size(); ++i)
 		{
-			std::from_chars(rawValues[i].data(), rawValues[i].data() + rawValues[i].size(), values[i]);
+			auto [ptr, ec] =  std::from_chars(rawValues[i].data(), rawValues[i].data() + rawValues[i].size(), values[i]);
+			if (ec != std::errc())
+			{
+				std::string errorMessage = rawValues[i] + " is not a value typed as " + typeid(T).name();
+				throw std::runtime_error(errorMessage);
+			}
 		}
-		
 
 		return values;
 	};
